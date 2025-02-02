@@ -2,7 +2,7 @@
 Security best practices and coding skills
 
 [web hosting](webhosting)
-  -[subtask](subtask) Web hosting is a service that allows users to publish their website files online. It's usually provided by a web hosting company. 
+  -[subtask](subtaskWeb hosting is a service that allows users to publish their website files online. It's usually provided by a web hosting company. 
 How it works
 A web hosting provider stores a website's files on a server 
 The server's resources, like memory, CPU, and bandwidth, are shared among multiple websites 
@@ -15,4 +15,4 @@ A virtual server made up of other web servers pools resources from a network. Th
 Dedicated hosting
 A single server is dedicated to a single business customer, who has complete control over the server. This gives the customer more authority and control over their website's files. 
 Virtual Private Server (VPS) hosting
-A physical server is divided into virtual servers, each of which hosts a website. This is a middle ground between shared and dedicated hosting. 
+A physical server is divided into virtual servers, each of which hosts a website. This is a middle ground between shared and dedicated hosting). 
