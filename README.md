@@ -15,4 +15,4 @@ A virtual server made up of other web servers pools resources from a network. Th
 Dedicated hosting
 A single server is dedicated to a single business customer, who has complete control over the server. This gives the customer more authority and control over their website's files. 
 Virtual Private Server (VPS) hosting
-A physical server is divided into virtual servers, each of which hosts a website. This is a middle ground between shared and dedicated hosting). 
+A physical server is divided into virtual servers, each of which hosts a website. This is a middle ground between shared and dedicated hosting]. 
