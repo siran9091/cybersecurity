@@ -3,10 +3,10 @@
 ## understanding Dev
 ### Coding Terms
 ## Table of Contents
-  -(Arguments in python)
+  -(#Arguments in python)
 In Python, arguments are the values passed to a function when it is called. They are the actual data that the function operates on. 
 Here's a breakdown of the different types of arguments:
-  -(Positional Arguments):
+  -(#Positional Arguments):
 These are the most common type of arguments. They are passed to the function in the order that the parameters are defined in the function definition.
 Keyword Arguments:
 These arguments are passed with their corresponding parameter names. This allows you to pass arguments out of order or skip some arguments.
