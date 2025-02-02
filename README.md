@@ -2,7 +2,7 @@
 Security best practices and coding skills
 
 [web hosting](webhosting)
-  -[_subtask](subtaskWeb hosting is a service that allows users to publish their website files online. It's usually provided by a web hosting company. 
+  -[hosting is a service that allows users to publish their website files online. It's usually provided by a web hosting company. 
 How it works
 A web hosting provider stores a website's files on a server 
 The server's resources, like memory, CPU, and bandwidth, are shared among multiple websites 
