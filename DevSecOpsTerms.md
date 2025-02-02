@@ -4,10 +4,10 @@
 ### Coding Terms
 ## Table of Contents
 
-- [Section Title](#section-title)
+- [Arguments](#Arguments)
 
   - [Arguments].(#Arguments).
-  - [python].(#python).
+  - [python](#python).
     
 In Python, arguments are the values passed to a function when it is called. They are the actual data that the function operates on. 
 Here's a breakdown of the different types of arguments:
