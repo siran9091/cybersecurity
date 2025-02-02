@@ -19,7 +19,8 @@ These arguments have a default value assigned in the function definition. If you
 # Variable-length Arguments:
 These arguments allow you to pass a variable number of arguments to a function. They are defined using *args (for non-keyword arguments) and **kwargs (for keyword arguments). 
 
-```def greet(name, age=18):
+```python
+def greet(name, age=18):
   print("Hello,", name)
   print("You are", age, "years old.")
 
