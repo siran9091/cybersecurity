@@ -1,0 +1,48 @@
+About
+I am a Security Operations Center (SOC) Analyst and Penetration Tester with 2+ years of experience identifying, investigating, and mitigating threats across enterprise, cloud, and hybrid environments. My background spans both offensive security (red-team) and defensive operations (blue-team), allowing me to assess risks holistically and strengthen overall security posture.
+
+I specialize in SIEM monitoring (Splunk, QRadar), threat hunting, incident response, penetration testing, vulnerability management, and EDR analysis using tools like CrowdStrike Falcon and Microsoft Defender. My work has contributed to measurable improvements in detection accuracy, reduced false positives, and accelerated incident containment.
+
+In previous roles, I performed enterprise-level penetration tests, identified critical OWASP Top 10 vulnerabilities, automated reconnaissance workflows using Python and Bash, and delivered actionable reports for both technical and executive audiences. I also have hands-on experience in network and endpoint forensics, cloud security assessments (AWS, Azure), and Active Directory attack-and-defense lab environments.
+
+I hold a Master’s degree in Computer Science (GPA 3.80) and continuously build my skills through home labs, CTF challenges, and emerging security research. I am passionate about solving complex security problems, improving incident response maturity, and contributing to a proactive and resilient cybersecurity program.
+
+If you’re looking for a cybersecurity professional who combines strong technical skills, investigative thinking, and a commitment to continuous learning, I’d love to connect.
+
+[Bold](SOC Analyst)
+
+|Insight Enterprises Inc. |Aug 2025 - Present · 8 mos|
+ ------------------------- -------------------------
+•	Monitored and analyzed security events from SIEM tools (Splunk, QRadar) to detect and mitigate potential threats, ensuring high accuracy in incident categorization.
+•	Responded to and resolved security incidents, including phishing attempts, malware infections, and suspicious network activity, contributing to improved incident response efficiency.
+•	Collaborated with cross-functional IT and compliance teams to strengthen security controls, ensuring alignment with NIST, ISO 27001, and organizational cybersecurity policies.
+•	Conducted threat hunting exercises using CrowdStrike Falcon and Microsoft Defender, proactively identifying vulnerabilities and escalating zero-day threats for further remediation.
+•	Prepared detailed incident reports and dashboards for senior management, providing actionable insights that improved SOC efficiency and reduced false positives by 20%.
+
+|3i Infotech Ltd.|2 yrs 2 mos |
+----------------- ------------
+SOC Analyst
+
+Jan 2022 - Jul 2023 · 1 yr 7 mos
+
+•	Conducted red-team penetration tests across enterprise IT and cloud infrastructures (AWS, Azure), simulating advanced persistent threats.
+•	Identified OWASP Top 10 vulnerabilities (SQLi, XSS, IDOR) and collaborated with developers to remediate critical issues.
+•	Automated reconnaissance and exploit chains using Python and Bash, reducing manual testing by 25%.
+•	Consolidated vulnerability data from Nessus and Qualys into dashboards for prioritized remediation.
+•	Ran phishing simulation campaigns and tracked metrics, lowering phishing susceptibility rates by 22%.
+•	Delivered technical and executive-level pen test reports with PoCs and remediation roadmaps.
+•	Investigated and triaged security incidents from QRadar and Splunk SIEM dashboards, escalating critical alerts to Tier-2 analysts.
+•	Performed forensic analysis of endpoints and networks using Wireshark, Zeek, and EDR tools to detect malware and unauthorized access.
+•	Conducted Active Directory security audits and enforced password/GPO hardening policies, reducing brute-force attempts by 20%.
+•	Created incident response playbooks for phishing, ransomware, and insider threat cases, cutting MTTR by 25%.
+•	Produced weekly SOC reports on threat patterns, false positives, and mitigation actions for management.
+
+Cyber Security Analyst
+
+Jun 2021 - Dec 2021 · 7 mos
+
+•	Assisted SOC team with SIEM monitoring and log analysis, escalating suspicious activity for investigation.
+•	Conducted packet capture reviews in Wireshark, detecting malware C2 traffic and brute-force attempts.
+•	Supported incident investigations by analyzing email headers, endpoint events, and registry artifacts.
+•	Documented findings and updated SOC knowledge base articles, streamlining onboarding for new analysts.
+•	Shadowed senior analysts during incident response simulations to gain practical exposure to phishing, ransomware, and insider threat handling.
