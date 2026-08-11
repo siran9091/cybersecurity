@@ -1,0 +1,92 @@
+![High](https://img.shields.io/badge/Broken Access Control – Unauthorized Administrative Account Creation-red)
+Finding: Broken Access Control – Unauthorized Administrative Account Creation
+
+Severity: Critical
+Category: Broken Access Control / Privilege Escalation
+OWASP: A01 – Broken Access Control
+CWE: CWE-269 – Improper Privilege Management
+
+Description:
+The application allows a user to influence the role assigned during the registration process. By modifying the registration request, an administrative role can be supplied even though public registration should create only a standard user account.
+
+The server accepts the modified request and creates the account successfully with administrative privileges. This shows that the backend is trusting a security-sensitive value supplied by the client.
+
+Impact:
+An attacker who can access the public registration functionality may create an account with administrator privileges. The attacker can then access administrative functionality and potentially view or modify sensitive application data.
+
+This represents a direct privilege-escalation path from an unprivileged/unauthenticated user to an administrator.
+
+Steps to Reproduce:
+1. Open the application's public registration page and enter normal test-user details.
+2. Submit the registration request and review the request sent to the server.
+3. In the registration JSON, change the role value to the administrative role. The exact test request used in the evidence was:
+   "role": "admin"
+4. The complete test request used in the screenshot was:
+
+   {
+     "email": "test1075@test.com",
+     "password": "abc123",
+     "passwordRepeat": "abc123",
+     "role": "admin",
+     "securityQuestion": {
+       "id": 2,
+       "question": "Mother's maiden name?"
+     },
+     "securityAnswer": "lisa"
+   }
+
+5. Send the modified registration request.
+6. The application accepts the request and confirms that the user has been created.
+7. Log in with the newly created test account.
+8. Open the administration functionality and confirm that the newly created account has administrator-level access.
+
+This demonstrates that the server is accepting a security-sensitive role value supplied by the client instead of assigning the role itself.
+
+Actual Result:
+The backend accepts the client-supplied administrative role and creates the account with administrative privileges.
+
+Expected Result:
+Public registration must always create a standard user. Role assignment must be controlled by the server and must not be determined by a client-controlled parameter.
+
+Developer Explanation:
+The important point is that the issue is not related to an administrator option being visible in the registration page. Even if the UI only shows normal registration, a requester can modify the API request before it reaches the server.
+
+The backend should ignore any client-supplied role or privilege value during normal registration and assign the default user role server-side.
+
+Remediation:
+- Do not accept role/privilege assignment from public registration requests.
+- Assign the default user role on the server.
+- Reject or ignore attempts to submit privileged roles.
+- Restrict administrator creation to an authorized provisioning process.
+- Enforce authorization checks on every administrative endpoint.
+- Add a regression test confirming that public registration cannot create an administrator.
+
+Evidence Guidance:
+Place the registration request/response evidence first, followed by evidence showing the newly created account accessing administrator functionality.
+
+Suggested captions:
+Figure 1: Modified registration request containing a privileged role.
+Figure 2: Application accepts the registration and creates the account.
+Figure 3: Newly created account is able to access administrative functionality.
+
+PAYLOAD / REQUEST USED IN THE SCREENSHOT
+
+The registration request shown in the evidence was:
+
+{
+  "email": "test1075@test.com",
+  "password": "abc123",
+  "passwordRepeat": "abc123",
+  "role": "admin",
+  "securityQuestion": {
+    "id": 2,
+    "question": "Mother's maiden name?"
+  },
+  "securityAnswer": "lisa"
+}
+
+The important manipulated value is:
+
+"role": "admin"
+
+This is the value that was added/changed to create the account with administrative privileges.
