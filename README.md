@@ -17,7 +17,7 @@ A single server is dedicated to a single business customer, who has complete con
 Virtual Private Server (VPS) hosting
 A physical server is divided into virtual servers, each of which hosts a website. This is a middle ground between shared and dedicated hosting]. 
 
- \bf Admin Section:
+<b><span style="color:red">This is bold red text</span></b>  \bfAdmin Section:
 Finding: Broken Access Control – Unauthorized Access to Administration Section
 
 Severity: High
@@ -67,7 +67,7 @@ Show the normal-user context and the direct request/response that demonstrates a
 Suggested caption:
 Figure 1: Administrative functionality is accessible without the required administrator authorization.
 
-SQL Inje:
+<b><span style="color:red">SQL Inje:</span></b> SQL Inje:
 Finding: Authentication Bypass Through SQL Injection
 
 Severity: Critical
@@ -123,7 +123,7 @@ Figure 1: Normal login attempt fails with invalid credentials.
 Figure 2: Manipulated authentication request.
 Figure 3: Application establishes an authenticated session despite the invalid password.
 
-Exposed Metrics:
+<b><span style="color:red">This is bold red text</span></b>Exposed Metrics:
 Finding: Unauthenticated Exposure of Application Metrics
 
 Severity: Low
@@ -174,7 +174,7 @@ Suggested caption:
 Figure 1: Publicly accessible metrics endpoint exposes internal application and process information.
 
 
-Fogred Feedback:
+<b><span style="color:red">Fogred Feedback:</span></b> 
 Finding: Broken Access Control – Feedback Author Spoofing
 
 Severity: Medium
@@ -227,7 +227,7 @@ Figure 1: Feedback request contains a client-controlled user identifier.
 Figure 2: Application creates the feedback under another user's identity.
 
 
-VIEW BASKET:
+<b><span style="color:red">This is bold red text</span></b>VIEW BASKET:
 Finding: Insecure Direct Object Reference (IDOR) – Unauthorized Access to Another User's Basket
 
 Severity: High
@@ -280,7 +280,7 @@ Figure 1: Authenticated User A requests a basket using a different user's basket
 Figure 2: Server returns another user's basket information without an ownership check.
 
 
-PAYBACK TIME:
+<b><span style="color:red">This is bold red text</span></b>PAYBACK TIME:
 Finding: Business Logic Flaw – Price Manipulation Through Negative Quantity
 
 Severity: High
@@ -334,7 +334,7 @@ Figure 1: Negative product quantity is accepted in the basket.
 Figure 2: Negative quantity causes an invalid negative order total.
 
 
-WEAK PASSWORD:
+<b><span style="color:red">This is bold red text</span></b>WEAK PASSWORD:
 Finding: Weak Password Policy
 
 Severity: Medium
@@ -387,7 +387,7 @@ Suggested caption:
 Figure 1: Weak password is accepted and results in successful authentication.
 
 
-REFLECTED XSS:
+<b><span style="color:red">This is bold red text</span></b>REFLECTED XSS:
 Finding: Reflected Cross-Site Scripting (XSS)
 
 Severity: High
@@ -440,7 +440,7 @@ Figure 1: XSS test input submitted through the affected parameter.
 Figure 2: Attacker-controlled input reflected into the HTML response.
 Figure 3: Harmless JavaScript proof-of-concept executes in the browser.
 
-POISION NULL BYTE:
+<b><span style="color:red">This is bold red text</span></b>POISION NULL BYTE:
 Finding: Improper File Validation / Poison Null Byte
 
 Severity: Medium
@@ -492,7 +492,7 @@ Suggested caption:
 Figure 1: Crafted filename containing a null byte is processed and results in unintended file/content exposure.
 
 
-DIRECTROY LISTING:
+<b><span style="color:red">This is bold red text</span></b>DIRECTROY LISTING:
 Finding: Directory Listing Enabled
 
 Severity: Medium
@@ -543,7 +543,7 @@ Show the request to the directory and the response containing the directory list
 Suggested caption:
 Figure 1: Public directory listing exposes files stored under the application directory.
 
-STACK TRACE ERROR:
+<b><span style="color:red">This is bold red text</span></b> STACK TRACE ERROR:
 Finding: Stack Trace Information Disclosure
 
 Severity: Medium
