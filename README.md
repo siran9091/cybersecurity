@@ -17,7 +17,7 @@ A single server is dedicated to a single business customer, who has complete con
 Virtual Private Server (VPS) hosting
 A physical server is divided into virtual servers, each of which hosts a website. This is a middle ground between shared and dedicated hosting]. 
 
-Admin Section:
+ \bf Admin Section:
 Finding: Broken Access Control – Unauthorized Access to Administration Section
 
 Severity: High
