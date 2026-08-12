@@ -1,24 +1,96 @@
-# cybersecurity
-Security best practices and coding skills
+# Finding: Broken Access Control – Unauthorized Administrative Account Creation
 
-[web hosting](webhosting)
-  -[hosting is a service that allows users to publish their website files online. It's usually provided by a web hosting company. 
-How it works
-A web hosting provider stores a website's files on a server 
-The server's resources, like memory, CPU, and bandwidth, are shared among multiple websites 
-Anyone with internet access can view the website 
-Types of web hosting
-Shared hosting
-A single server hosts multiple websites, sharing resources among them. This is a cost-effective option for small businesses and personal websites. 
-Cloud hosting
-A virtual server made up of other web servers pools resources from a network. This allows for scalability and flexibility, and can be cost-effective for businesses. 
-Dedicated hosting
-A single server is dedicated to a single business customer, who has complete control over the server. This gives the customer more authority and control over their website's files. 
-Virtual Private Server (VPS) hosting
-A physical server is divided into virtual servers, each of which hosts a website. This is a middle ground between shared and dedicated hosting]. 
+Severity: Critical
+Category: Broken Access Control / Privilege Escalation
+OWASP: A01 – Broken Access Control
+CWE: CWE-269 – Improper Privilege Management
 
-![High](https://img.shields.io/badge/Severity-HIGH-red) <b><span style="color:red">This is bold red text</span></b>  \bfAdmin Section:
-Finding: Broken Access Control – Unauthorized Access to Administration Section
+Description:
+The application allows a user to influence the role assigned during the registration process. By modifying the registration request, an administrative role can be supplied even though public registration should create only a standard user account.
+
+The server accepts the modified request and creates the account successfully with administrative privileges. This shows that the backend is trusting a security-sensitive value supplied by the client.
+
+Impact:
+An attacker who can access the public registration functionality may create an account with administrator privileges. The attacker can then access administrative functionality and potentially view or modify sensitive application data.
+
+This represents a direct privilege-escalation path from an unprivileged/unauthenticated user to an administrator.
+
+Steps to Reproduce:
+1. Open the application's public registration page and enter normal test-user details.
+2. Submit the registration request and review the request sent to the server.
+3. In the registration JSON, change the role value to the administrative role. The exact test request used in the evidence was:
+   "role": "admin"
+4. The complete test request used in the screenshot was:
+
+   {
+     "email": "test1075@test.com",
+     "password": "abc123",
+     "passwordRepeat": "abc123",
+     "role": "admin",
+     "securityQuestion": {
+       "id": 2,
+       "question": "Mother's maiden name?"
+     },
+     "securityAnswer": "lisa"
+   }
+
+5. Send the modified registration request.
+6. The application accepts the request and confirms that the user has been created.
+7. Log in with the newly created test account.
+8. Open the administration functionality and confirm that the newly created account has administrator-level access.
+
+This demonstrates that the server is accepting a security-sensitive role value supplied by the client instead of assigning the role itself.
+
+Actual Result:
+The backend accepts the client-supplied administrative role and creates the account with administrative privileges.
+
+Expected Result:
+Public registration must always create a standard user. Role assignment must be controlled by the server and must not be determined by a client-controlled parameter.
+
+Developer Explanation:
+The important point is that the issue is not related to an administrator option being visible in the registration page. Even if the UI only shows normal registration, a requester can modify the API request before it reaches the server.
+
+The backend should ignore any client-supplied role or privilege value during normal registration and assign the default user role server-side.
+
+Remediation:
+- Do not accept role/privilege assignment from public registration requests.
+- Assign the default user role on the server.
+- Reject or ignore attempts to submit privileged roles.
+- Restrict administrator creation to an authorized provisioning process.
+- Enforce authorization checks on every administrative endpoint.
+- Add a regression test confirming that public registration cannot create an administrator.
+
+Evidence Guidance:
+Place the registration request/response evidence first, followed by evidence showing the newly created account accessing administrator functionality.
+
+Suggested captions:
+Figure 1: Modified registration request containing a privileged role.
+Figure 2: Application accepts the registration and creates the account.
+Figure 3: Newly created account is able to access administrative functionality.
+
+PAYLOAD / REQUEST USED IN THE SCREENSHOT
+
+The registration request shown in the evidence was:
+
+{
+  "email": "test1075@test.com",
+  "password": "abc123",
+  "passwordRepeat": "abc123",
+  "role": "admin",
+  "securityQuestion": {
+    "id": 2,
+    "question": "Mother's maiden name?"
+  },
+  "securityAnswer": "lisa"
+}
+
+The important manipulated value is:
+
+"role": "admin"
+
+This is the value that was added/changed to create the account with administrative privileges.
+
+# Finding: Broken Access Control – Unauthorized Access to Administration Section
 
 Severity: High
 Category: Broken Access Control
@@ -36,12 +108,17 @@ A user without administrative privileges may be able to access administrative fu
 Depending on the functions exposed, unauthorized access may allow an attacker to view registered users, customer feedback, or perform other administrative operations.
 
 Steps to Reproduce:
-1. Authenticate using a normal non-administrative account.
-2. Do not use the administrative registration technique described in the separate finding.
-3. Request the administration endpoint directly.
-4. Observe the server response.
-5. Verify whether administrative content or administrative data is returned to the normal user.
-6. Where permitted, attempt a non-destructive administrative operation to confirm whether authorization is also missing at the API/action level.
+1. Log in with a normal, non-administrative test account.
+2. From the application, identify the administration functionality or its underlying route.
+3. Directly request the administration route instead of relying on the Administration menu being displayed.
+4. The route used during testing was:
+   /#/administration
+5. Observe the response and the content displayed by the application.
+6. Confirm whether the normal user's session is able to access administrative information or functionality.
+
+No special exploit string or payload is required for this finding. The test is simply a direct request using a normal user's authenticated session.
+
+The important point for the application team is that hiding the Administration option from the UI is not sufficient. The server should make the authorization decision for the requested administrative functionality.
 
 Actual Result:
 The administration functionality is accessible without the required administrative authorization.
@@ -67,8 +144,16 @@ Show the normal-user context and the direct request/response that demonstrates a
 Suggested caption:
 Figure 1: Administrative functionality is accessible without the required administrator authorization.
 
-<b><span style="color:red">SQL Inje:</span></b> SQL Inje:
-Finding: Authentication Bypass Through SQL Injection
+PAYLOAD / REQUEST USED IN THE SCREENSHOT
+
+No special exploit payload was used. The administrative functionality was accessed directly through the application route:
+
+/#/administration
+
+For API-level validation, use the authenticated session of the test user and request the corresponding administration endpoint directly. The key point is that the authorization decision must be made by the server.
+
+
+# Finding: Authentication Bypass Through SQL Injection
 
 Severity: Critical
 Category: SQL Injection / Authentication Bypass
@@ -88,13 +173,22 @@ An attacker may be able to authenticate as another application user without know
 If the targeted account has elevated privileges, the attacker may gain access to sensitive functionality and data associated with that account.
 
 Steps to Reproduce:
-1. Navigate to the application's login page.
-2. Capture a normal login request.
-3. Submit an invalid password and confirm that normal authentication fails.
-4. Modify the authentication input with the SQL injection test value used during the assessment.
-5. Submit the modified request.
-6. Observe that the application returns a successful authentication response.
-7. Verify that an authenticated session is established and that the application identifies the session as the targeted user.
+1. Open the application's login page and use a normal invalid login first to confirm that authentication works as expected.
+2. Capture the login request and review the email field.
+3. For the authentication-bypass test, replace the email value with the exact value used in the evidence:
+   bender@juice-sh.op'--
+4. The test request body was:
+
+   {
+     "email": "bender@juice-sh.op'--",
+     "password": "<test value>"
+   }
+
+5. Submit the request.
+6. Observe that the application returns a successful authentication response even though the supplied password is not being validated in the normal way.
+7. Confirm that an authenticated session is created and that the application identifies the session as the Bender user.
+
+The demonstrated impact is authentication bypass. The finding should therefore be understood as SQL injection leading to authentication bypass, rather than as an authorization bypass.
 
 Actual Result:
 The application accepts the manipulated authentication input and establishes an authenticated session without the legitimate password.
@@ -123,8 +217,26 @@ Figure 1: Normal login attempt fails with invalid credentials.
 Figure 2: Manipulated authentication request.
 Figure 3: Application establishes an authenticated session despite the invalid password.
 
-<b><span style="color:red">This is bold red text</span></b>Exposed Metrics:
-Finding: Unauthenticated Exposure of Application Metrics
+PAYLOAD / REQUEST USED IN THE SCREENSHOT
+
+The Login Bender test used the following value in the Email field:
+
+bender@juice-sh.op'--
+
+The Password field was populated with a value, but the password is masked in the screenshot and is therefore not reproduced here.
+
+The SQL injection is in the email value above. The trailing `'--` is used to alter the backend authentication query so that the password check is bypassed.
+
+Example request body:
+
+{
+  "email": "bender@juice-sh.op'--",
+  "password": "<test value>"
+}
+
+The report should focus on the demonstrated authentication bypass. Do not describe it as an authorization bypass.
+
+# Finding: Unauthenticated Exposure of Application Metrics
 
 Severity: Low
 Category: Information Disclosure / Security Misconfiguration
@@ -146,10 +258,15 @@ The information may help an attacker understand application behavior, identify t
 The evidence demonstrates information disclosure; it does not by itself demonstrate remote code execution or direct system compromise.
 
 Steps to Reproduce:
-1. Request the application's metrics endpoint without administrative privileges.
-2. Observe that the endpoint returns monitoring information.
-3. Review the response for application and process-level metrics.
-4. Confirm that the same information is available without appropriate authentication or network restriction.
+1. Start from a session that does not have administrative privileges, or use an unauthenticated browser session.
+2. Request the application's metrics endpoint directly:
+   GET /metrics
+3. No special exploit payload is required; the endpoint itself is the test input.
+4. Review the returned response.
+5. The response exposes application and process information such as CPU usage, memory usage, startup timing, file-upload statistics, file descriptors and Node.js event-loop metrics.
+6. Confirm that the same information is available without the level of access normally expected for internal operational metrics.
+
+The issue is the exposure of the metrics endpoint itself. The finding is not dependent on any SQLi, XSS or other payload.
 
 Actual Result:
 Detailed application and process metrics are returned to an unauthorized requester.
@@ -173,9 +290,17 @@ Place the metrics response screenshot after the description and impact.
 Suggested caption:
 Figure 1: Publicly accessible metrics endpoint exposes internal application and process information.
 
+PAYLOAD / REQUEST USED IN THE SCREENSHOT
 
-<b><span style="color:red">Fogred Feedback:</span></b> 
-Finding: Broken Access Control – Feedback Author Spoofing
+No exploit payload was used. The endpoint was requested directly without authentication:
+
+GET /metrics HTTP/1.1
+Host: <target>
+
+The response displayed application and process metrics, including CPU, memory, startup timing, file-upload statistics, file descriptors and Node.js event-loop information.
+
+
+# Finding: Broken Access Control – Feedback Author Spoofing
 
 Severity: Medium
 Category: Broken Access Control / Improper Authorization
@@ -193,13 +318,26 @@ An attacker may be able to impersonate another user when creating feedback or ot
 This can affect the integrity and trustworthiness of application data and may be used to create misleading records under another user's identity.
 
 Steps to Reproduce:
-1. Log in as a normal user.
-2. Submit a legitimate feedback request.
-3. Capture the request.
-4. Modify the user identifier in the request to another valid user's identifier.
-5. Send the modified request.
-6. Observe the successful response.
-7. View the resulting feedback and verify that it is associated with the other user's identity.
+1. Log in as a normal test user and open the customer-feedback functionality.
+2. Submit a normal feedback entry and capture the request sent to the server.
+3. Review the JSON body and identify the UserId value.
+4. During testing, the request was modified to use:
+   "UserId": 3
+5. The complete test request body shown in the evidence was:
+
+   {
+     "UserId": 3,
+     "captchaId": 1,
+     "captcha": "4",
+     "comment": "good (test)@juice-sh.op",
+     "rating": 5
+   }
+
+6. Send the modified request while remaining logged in as the test user.
+7. Observe that the server accepts the request and returns a successful response.
+8. Check the resulting feedback entry and confirm that it is associated with the supplied UserId rather than being tied to the authenticated user's identity.
+
+The security issue is that the server trusts the client-supplied UserId when deciding who owns the feedback.
 
 Actual Result:
 The server trusts the user identifier supplied by the client and creates the feedback under the selected user's identity.
@@ -226,9 +364,27 @@ Suggested captions:
 Figure 1: Feedback request contains a client-controlled user identifier.
 Figure 2: Application creates the feedback under another user's identity.
 
+PAYLOAD / REQUEST USED IN THE SCREENSHOT
 
-<b><span style="color:red">This is bold red text</span></b>VIEW BASKET:
-Finding: Insecure Direct Object Reference (IDOR) – Unauthorized Access to Another User's Basket
+The request shown in the evidence used the following values:
+
+{
+  "UserId": 3,
+  "captchaId": 1,
+  "captcha": "4",
+  "comment": "good (test)@juice-sh.op",
+  "rating": 5
+}
+
+The important manipulated value is:
+
+"UserId": 3
+
+The authenticated user was able to submit the request while supplying another user's identifier. The server then stored the feedback against that supplied user ID.
+
+Use the exact test email/comment value from the screenshot only if it is required for reproduction; otherwise use a controlled test value.
+
+# Finding: Insecure Direct Object Reference (IDOR) – Unauthorized Access to Another User's Basket
 
 Severity: High
 Category: Broken Access Control / IDOR
@@ -246,13 +402,21 @@ An attacker may be able to access another customer's basket and potentially lear
 If related basket operations are also insufficiently authorized, the same weakness may potentially allow modification of another user's basket. Such modification should be reported only if independently demonstrated.
 
 Steps to Reproduce:
-1. Authenticate as User A.
-2. Access User A's basket and capture the request.
-3. Identify the basket identifier used by the request.
-4. Replace the identifier with another valid basket identifier belonging to User B.
-5. Send the modified request while remaining authenticated as User A.
-6. Observe the response.
-7. Confirm that the response contains User B's basket information.
+1. Log in as a test user and open the shopping basket.
+2. Capture the request used to retrieve the basket.
+3. Identify the basket identifier in the request.
+4. Change the basket identifier to the value demonstrated in the evidence:
+   -1
+5. The request used during testing was:
+
+   GET /rest/basket/-1 HTTP/1.1
+   Host: <target>
+
+6. Send the request using the authenticated test user's existing session.
+7. Review the response.
+8. Confirm that the response returns basket information belonging to another user instead of restricting access to the authenticated user's own basket.
+
+The important point for the developer is that the server must verify ownership of the requested basket, rather than relying only on the basket ID supplied by the client.
 
 Actual Result:
 The application returns another user's basket based only on the supplied basket identifier.
@@ -279,62 +443,27 @@ Suggested captions:
 Figure 1: Authenticated User A requests a basket using a different user's basket identifier.
 Figure 2: Server returns another user's basket information without an ownership check.
 
+PAYLOAD / REQUEST USED IN THE SCREENSHOT
 
-<b><span style="color:red">This is bold red text</span></b>PAYBACK TIME:
-Finding: Business Logic Flaw – Price Manipulation Through Negative Quantity
+The basket request used the basket identifier:
 
-Severity: High
-Category: Business Logic / Insecure Design
-OWASP: A04 – Insecure Design
-CWE: CWE-840 – Business Logic Errors
+GET /rest/basket/-1
 
-Description:
-The shopping basket accepts a negative product quantity and uses that value directly in the order calculation.
+The important part of the test was to change the basket ID from the authenticated user's basket to:
 
-During testing, a product quantity was changed to a negative value. The application accepted the value and calculated a negative line-item amount, which resulted in a negative overall order total.
+-1
 
-Impact:
-An attacker may be able to manipulate the financial calculation of an order.
+The request was made using the authenticated user's existing session. The application then returned another user's basket information.
 
-Depending on the downstream payment, refund, loyalty, order, or accounting logic, this could result in financial loss, invalid orders, incorrect balances, or abuse of application rewards.
+Example:
 
-Steps to Reproduce:
-1. Add a product to the shopping basket.
-2. Capture the basket update/request.
-3. Change the product quantity to a negative integer.
-4. Submit the modified request.
-5. Observe that the application accepts the negative quantity.
-6. Proceed through the order flow.
-7. Observe that the negative quantity is included in the price calculation and produces a negative order total.
-
-Actual Result:
-The application accepts a negative quantity and calculates a negative product value/total.
-
-Expected Result:
-The server should reject negative quantities and allow only valid quantities defined by the business rules.
-
-Developer Explanation:
-The frontend controls are not sufficient to protect this functionality. Even if the UI only provides + and – buttons and prevents a negative value, the request can be changed directly.
-
-The backend must validate quantity before using it in any financial calculation.
-
-Remediation:
-- Validate quantity server-side.
-- Allow only positive integers within a defined maximum.
-- Reject negative, zero, fractional, or excessively large quantities where unsupported.
-- Recalculate prices using trusted server-side product prices.
-- Validate the final order amount before checkout/payment.
-- Add automated tests for negative and boundary values.
-
-Evidence Guidance:
-Use the basket screenshot showing the negative quantity followed by the order/checkout evidence showing the resulting negative total.
-
-Suggested captions:
-Figure 1: Negative product quantity is accepted in the basket.
-Figure 2: Negative quantity causes an invalid negative order total.
+GET /rest/basket/-1 HTTP/1.1
+Host: <target>
+Cookie: <authenticated-user-session>
 
 
-<b><span style="color:red">This is bold red text</span></b>WEAK PASSWORD:
+# 
+
 Finding: Weak Password Policy
 
 Severity: Medium
@@ -355,12 +484,27 @@ Weak passwords increase the likelihood of account compromise through password gu
 The risk is higher for accounts that have access to sensitive information or privileged functionality.
 
 Steps to Reproduce:
-1. Navigate to the application's login page.
-2. Attempt authentication using invalid/common passwords.
-3. Confirm that invalid credentials are rejected.
-4. Authenticate using the identified weak password.
+1. Open the application's login page for the test account.
+2. During the credential-strength test, the following common password values were checked:
+
+   admin123
+   123456
+   123456789
+   password
+   qwerty
+   12345678
+   12345
+   123123
+   vin
+
+3. The successful credential shown in the evidence was:
+   Username/Email: admin@juice-sh.op
+   Password: admin123
+4. Submit the login request using the above credential.
 5. Observe that authentication succeeds.
-6. Confirm the privileges and information available to the compromised account.
+6. Confirm the level of access available to the compromised account.
+
+This finding is specifically about the use of a weak/easily guessable password. It should be kept separate from brute-force protection or account-lockout testing.
 
 Actual Result:
 A weak/easily guessable password is accepted for authentication.
@@ -386,209 +530,27 @@ Show the relevant authentication evidence without exposing real credentials in t
 Suggested caption:
 Figure 1: Weak password is accepted and results in successful authentication.
 
+PAYLOAD / REQUEST USED IN THE SCREENSHOT
 
-<b><span style="color:red">This is bold red text</span></b>REFLECTED XSS:
-Finding: Reflected Cross-Site Scripting (XSS)
+The screenshot shows a password-strength/credential test using the following candidate values:
 
-Severity: High
-Category: Injection – Cross-Site Scripting
-OWASP: A03 – Injection
-CWE: CWE-79 – Improper Neutralization of Input During Web Page Generation
+admin123
+123456
+123456789
+password
+qwerty
+12345678
+12345
+123123
+vin
 
-Description:
-User-controlled input is reflected by the application into an HTML response without appropriate output encoding. The reflected value is interpreted in a browser-executable context, allowing attacker-controlled JavaScript to execute.
+The successful login request shown in the evidence used the account:
 
-The final evidence should demonstrate both reflection and execution. A string merely appearing in a JSON response should not be treated as XSS.
+admin@juice-sh.op
 
-Impact:
-Successful exploitation could allow an attacker to execute JavaScript in another user's browser in the security context of the affected application.
+with the password:
 
-Depending on the application's functionality, this could allow unauthorized actions through the victim's session, modification of displayed content, phishing, or access to data available to the victim.
+admin123
 
-Steps to Reproduce:
-1. Identify the affected input parameter.
-2. Submit a harmless XSS proof-of-concept payload through the affected parameter.
-3. Observe that the input is reflected in the application's HTML response.
-4. Verify that the output is inserted into an executable browser context without appropriate encoding.
-5. Confirm execution of the harmless proof-of-concept in the browser.
-6. Capture the request, response, and browser execution evidence.
+The report should treat this as a weak-password finding. Do not combine it with the brute-force/lockout finding unless that control was separately demonstrated.
 
-Actual Result:
-The application reflects attacker-controlled input into an executable HTML context without sufficient output encoding, resulting in JavaScript execution.
-
-Expected Result:
-User-controlled input should be safely encoded according to its output context so that it is rendered as data rather than executable code.
-
-Developer Explanation:
-Reflection alone is not enough to call an issue XSS. The important evidence is that the reflected input reaches an executable browser context.
-
-The application should apply context-appropriate output encoding at the point where data is inserted into HTML, attributes, JavaScript, CSS, or URLs.
-
-Remediation:
-- Apply context-specific output encoding.
-- Use framework-provided safe templating mechanisms.
-- Avoid inserting untrusted data through unsafe DOM APIs such as innerHTML.
-- Validate input as defense in depth, but do not rely on filtering alone.
-- Deploy an appropriate CSP as an additional defense layer, not as the primary XSS fix.
-- Add regression tests for the affected parameter.
-
-Evidence Guidance:
-The screenshots should show the payload request, the relevant response context, and the browser execution result. Do not use a CSP header screenshot as the primary proof of XSS.
-
-Suggested captions:
-Figure 1: XSS test input submitted through the affected parameter.
-Figure 2: Attacker-controlled input reflected into the HTML response.
-Figure 3: Harmless JavaScript proof-of-concept executes in the browser.
-
-<b><span style="color:red">This is bold red text</span></b>POISION NULL BYTE:
-Finding: Improper File Validation / Poison Null Byte
-
-Severity: Medium
-Category: Input Validation / File Handling
-OWASP: A05 – Security Misconfiguration
-CWE: CWE-20 – Improper Input Validation
-
-Description:
-The application's file-handling functionality does not correctly validate and normalize filenames containing a null-byte character.
-
-During testing, a crafted filename containing a null byte was processed by the application and caused the application to return content that should not have been exposed through the affected file endpoint.
-
-The observed behavior indicates that validation and file resolution are being performed inconsistently.
-
-Impact:
-An attacker may be able to bypass file-extension or filename validation and access unintended files through the affected functionality.
-
-The practical impact depends on the directories and files reachable through the vulnerable endpoint. Sensitive configuration files, package metadata, source files, or other internal files could become exposed if they are located within the reachable path.
-
-Steps to Reproduce:
-1. Identify the application's file-serving endpoint.
-2. Submit a normal valid filename and confirm the expected behavior.
-3. Modify the filename by introducing a null-byte character and the crafted suffix used during testing.
-4. Submit the request.
-5. Observe that the application processes the crafted filename instead of rejecting it.
-6. Confirm that unintended content is returned.
-
-Actual Result:
-The application processes the null-byte-containing filename and returns content that should not be accessible through the endpoint.
-
-Expected Result:
-Malformed filenames and null-byte characters should be rejected before file resolution. Only explicitly permitted files should be served.
-
-Developer Explanation:
-The backend should validate the complete normalized filename before using it to access the filesystem. Validation performed on only part of the filename can be bypassed when different components of the application or underlying libraries interpret the filename differently.
-
-Remediation:
-- Reject null bytes and other invalid filename characters.
-- Normalize the path before validation.
-- Use an allowlist of files/resources that can be served.
-- Keep sensitive files outside the public web root.
-- Avoid constructing filesystem paths directly from user input.
-- Use safe file-handling APIs and ensure consistent validation across all layers.
-
-Evidence Guidance:
-Show the crafted request and the unexpected response. The evidence should demonstrate the actual file/content exposure rather than only showing that a null byte was accepted.
-
-Suggested caption:
-Figure 1: Crafted filename containing a null byte is processed and results in unintended file/content exposure.
-
-
-<b><span style="color:red">This is bold red text</span></b>DIRECTROY LISTING:
-Finding: Directory Listing Enabled
-
-Severity: Medium
-Category: Security Misconfiguration / Information Disclosure
-OWASP: A05 – Security Misconfiguration
-CWE: CWE-548 – Exposure of Information Through Directory Listing
-
-Description:
-The web server/application exposes a directory listing for a publicly accessible directory.
-
-When the directory is requested, the server returns a browsable list of files rather than denying directory access or returning only explicitly published resources.
-
-The directory location is also discoverable through the application's robots.txt response, which makes the exposed location easier to identify.
-
-Impact:
-Directory listing allows an attacker to enumerate files that may not have been intended for public access.
-
-Depending on the contents, this can expose backup files, source files, configuration files, uploaded documents, logs, or other internal resources.
-
-Steps to Reproduce:
-1. Request the application's robots.txt file.
-2. Identify the referenced directory.
-3. Request the directory directly.
-4. Observe that the server returns a directory listing.
-5. Review the listed files and confirm that they are accessible directly.
-
-Actual Result:
-The application/server returns a browsable directory listing to an unauthenticated requester.
-
-Expected Result:
-Directory browsing should be disabled and only explicitly intended public files should be accessible.
-
-Developer Explanation:
-The issue is not simply that a file is publicly available. The server is allowing users to enumerate the contents of a directory.
-
-This increases the likelihood that forgotten or internal files become exposed.
-
-Remediation:
-- Disable directory indexing/listing.
-- Store private files outside the public web root.
-- Use controlled download endpoints for files that require access.
-- Review the exposed directory for backups, configuration files, source code, logs, and sensitive documents.
-- Remove unnecessary files from production.
-
-Evidence Guidance:
-Show the request to the directory and the response containing the directory listing.
-
-Suggested caption:
-Figure 1: Public directory listing exposes files stored under the application directory.
-
-<b><span style="color:red">This is bold red text</span></b> STACK TRACE ERROR:
-Finding: Stack Trace Information Disclosure
-
-Severity: Medium
-Category: Information Disclosure / Improper Error Handling
-OWASP: A05 – Security Misconfiguration
-CWE: CWE-209 – Generation of Error Message Containing Sensitive Information
-
-Description:
-The application returns a detailed server-side stack trace when malformed input is submitted.
-
-During testing, invalid JSON input caused the application to return an HTTP 500 response containing internal implementation details such as source-code paths, module names, framework/runtime information, and code locations.
-
-Impact:
-Detailed stack traces provide useful reconnaissance information to an attacker.
-
-Source paths, module names, framework details, and code locations can help an attacker understand the application's internal architecture and identify additional attack opportunities.
-
-Steps to Reproduce:
-1. Capture a valid JSON request to the affected API endpoint.
-2. Modify the request so that the JSON becomes syntactically invalid.
-3. Send the malformed request.
-4. Observe the HTTP 500 response.
-5. Review the response body and identify the detailed stack trace/internal paths.
-
-Actual Result:
-The application exposes a detailed internal stack trace to the client.
-
-Expected Result:
-The client should receive a controlled generic error message, while detailed exception information should be written only to protected server-side logs.
-
-Developer Explanation:
-The detailed stack trace is useful to developers during troubleshooting, but it should not be returned to an external requester.
-
-The application can preserve the full exception in server logs while returning a generic message such as "Invalid request format" to the client.
-
-Remediation:
-- Implement centralized exception handling.
-- Return generic client-facing error messages.
-- Log detailed exceptions securely on the server.
-- Disable debug/verbose error output in production.
-- Add negative tests for malformed JSON and other invalid input.
-
-Evidence Guidance:
-Place the malformed request before the response screenshot so the developer can clearly understand what triggered the error.
-
-Suggested captions:
-Figure 1: Malformed JSON request sent to the affected endpoint.
-Figure 2: HTTP 500 response exposes the server-side stack trace.
